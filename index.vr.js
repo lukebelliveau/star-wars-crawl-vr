@@ -12,7 +12,7 @@ import {
   Animated,
 } from 'react-vr';
 
-const START = 30000;
+const START = 20000;
 const ROLL_PLOT = START + 9000;
 
 export default class star_wars_intro_vr extends React.Component {
@@ -126,11 +126,7 @@ const Crawler = ({ position, yPosition, zPosition }) => (
       { rotateZ: -0.5 }
       ],
   }}>
-    {
-      introText.map(line => {
-        return <CenteredText key={line}>{ line }</CenteredText>
-      })
-    }
+      <CenteredText>{ introText }</CenteredText>
   </View>
 );
 
@@ -244,7 +240,31 @@ const LogoImage = ({ zPosition }) => (
   />
 );
 
-const introText = [
+const introText = 
+  'It is a period of civil war.\n' +
+  'Rebel spaceships, striking\n' +
+  'from a hidden base, have\n' +
+  'won their first victory\n' +
+  'against the evil Galactic Empire.\n' +
+  '\n' +
+  'During the battle, rebel\n' +
+  'spies managed to steal\n' +
+  'secret plans to the Empire\'s\n' +
+  'ultimate weapon, the\n' + 
+  'DEATH STAR, an armored\n' +
+  'space station with enough\n' +
+  'power to destroy an entire planet.\n' +
+  '\n' + 
+  'Pursued by the Empire\'s\n' +
+  'sinister agents, Princess\n' +
+  'Leia races home aboard her\n' +
+  'starship, custodian of the\n' +
+  'stolen plans that can save\n' +
+  'her people and restore\n' +
+  'freedom to the galaxy....\n' +
+  '\n'
+
+const introTextArray = [
   'It is a period of civil war.',
   'Rebel spaceships, striking',
   'from a hidden base, have',
