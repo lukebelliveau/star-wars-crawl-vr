@@ -18,12 +18,20 @@ export default class star_wars_intro_vr extends React.Component {
   constructor() {
     super();
     this.state = {
-      z: 0,
+      logoZ: 0,
       status: 'play',
       isPlaying: true,
+      crawlerY: -0.1,
+      crawlerZ: -1.9,
+    };
+
+    this.crawlerStart = {
+      y: 0,
+      z: -2,
     };
 
     this.animateLogo();
+    this.animateCrawler();
 
     this.restart = this.restart.bind(this);
     this.stop = this.stop.bind(this);
@@ -32,7 +40,16 @@ export default class star_wars_intro_vr extends React.Component {
   animateLogo() {
     setInterval(() => {
       this.setState((prevState) => ({
-        z: prevState.z - 0.01,
+        logoZ: prevState.logoZ - 0.01,
+      }))
+    }, 1);
+  }
+
+  animateCrawler() {
+    setInterval(() => {
+      this.setState((prevState) => ({
+        crawlerY: prevState.crawlerY + 0.001,
+        crawlerZ: prevState.crawlerZ - 0.001,
       }))
     }, 1);
   }
@@ -46,7 +63,7 @@ export default class star_wars_intro_vr extends React.Component {
     setTimeout(() => {
       this.setState({
         status: 'play',
-        z: 0.3
+        logoZ: 0.3
       })
     }, 10)
   }
@@ -59,26 +76,50 @@ export default class star_wars_intro_vr extends React.Component {
 
   render() {
     return (
-      <View
-        style={ this.style }
-      >
+      <View>
         <Pano source={asset('stars.jpg')} />
-        <View
-          style={ this.style }
-        >
           <Player isPlaying={ this.state.isPlaying }>
-            <Theme
-              status={ this.state.status }
-            />
-            <Logo zPosition={ this.state.z } />
+            <Theme status={ this.state.status } />
+            <Logo zPosition={ this.state.logoZ } />
+            <Crawler yPosition={ this.state.crawlerY } zPosition={ this.state.crawlerZ }/>
           </Player>
           <Restart onClick={ this.restart } />
           <Stop onClick={ this.stop }/>
-        </View>
       </View>
     );
   }
 };
+
+const Crawler = ({ position, yPosition, zPosition }) => (
+  <View style={{
+    transform: [
+      { translate: [-4.8, yPosition, zPosition ]},
+      { rotateX: -50 },
+      { rotateY: -0.8 },
+      { rotateZ: -0.5 }
+      ],
+  }}>
+    {
+      introText.map(line => {
+        return <CenteredText key={line}>{ line }</CenteredText>
+      })
+    }
+  </View>
+);
+
+const CenteredText = ({ children }) => (
+  <Text
+    style={{
+      textAlign: 'center',
+      color: '#ff6',
+      fontFamily: '"Times New Roman", Georgia, Serif;',
+      fontWeight: 'bold',
+      fontSize: 1,
+    }}
+  >
+    { children }
+  </Text>
+);
 
 const Player = ({ isPlaying, children }) => {
   const toReturn = (
@@ -93,6 +134,10 @@ const Player = ({ isPlaying, children }) => {
 };
 
 const Theme = ({ status }) => {
+  /*
+  * **WORKAROUND** because I can't detect when the audio is loaded,
+   * so playControl prop on sound breaks on 'play' when first mounted.
+  * */
   return status === 'stop' ? null :
     <Sound
       source={ asset('theme.mp3') }
@@ -148,13 +193,6 @@ class Logo extends React.Component {
     }, ROLL_PLOT)
   }
 
-  // componentDidMount() {
-  //   Animated.timing(
-  //     this.state.fadeAnim,
-  //     { toValue: 1 },
-  //   ).start();
-  // }
-
   render() {
     return(
       <Animated.View
@@ -178,35 +216,31 @@ const LogoImage = ({ zPosition }) => (
     }}
     source={asset('logo.png')}
   />
-)
-
-const CenteredText = ({ children }) => (
-  <Text
-    style={{
-      textAlign: 'center',
-      color: '#ff6',
-      fontFamily: '"Times New Roman", Georgia, Serif;',
-    }}
-  >
-    { children }
-  </Text>
-);
-
-const Crawler = ({ position }) => (
-  <View style={{
-    ...position,
-  }}>
-    {
-      introText.map(line => {
-        return <CenteredText key={line}>{ line }</CenteredText>
-      })
-    }
-  </View>
 );
 
 const introText = [
   'It is a period of civil war.',
-  'Rebel spaceships, striking from a hidden base,'
+  'Rebel spaceships, striking',
+  'from a hidden base, have',
+  'won their first victory',
+  'against the evil Galactic',
+  'Empire.',
+  '',
+  'During the battle, rebel',
+  'spies managed to steal',
+  'secret plans to the Empire\'s',
+  'ultimate weapon, the',
+  'DEATH STAR, an armored',
+  'space station with enough',
+  'power to destroy an entire',
+  'planet.',
+  'Pursued by the Empire\'s',
+  'sinister agents, Princess',
+  'Leia races home aboard her',
+  'starship, custodian of the',
+  'stolen plans that can save',
+  'her people and restore',
+  'freedom to the galaxy....'
 ];
 
 AppRegistry.registerComponent('star_wars_intro_vr', () => star_wars_intro_vr);
