@@ -6,7 +6,10 @@ import {
   Text,
   View,
   Image,
-  Sound
+  Sound,
+  VrButton,
+  StyleSheet,
+  Animated,
 } from 'react-vr';
 
 export default class star_wars_intro_vr extends React.Component {
@@ -14,9 +17,17 @@ export default class star_wars_intro_vr extends React.Component {
     super();
     this.state = {
       z: 0,
-      status: ''
+      status: 'play',
+      isPlaying: true,
     };
 
+    this.animateLogo();
+
+    this.restart = this.restart.bind(this);
+    this.stop = this.stop.bind(this);
+  }
+
+  animateLogo() {
     setInterval(() => {
       this.setState((prevState) => ({
         z: prevState.z - 0.01,
@@ -24,26 +35,122 @@ export default class star_wars_intro_vr extends React.Component {
     }, 1);
   }
 
+  restart() {
+    this.setState({
+      status: 'stop'
+    });
+
+    setTimeout(() => {
+      this.setState({
+        status: 'play',
+        z: 0.3
+      })
+    }, 10)
+  }
+
+  stop() {
+    this.setState({
+      isPlaying: false,
+    })
+  }
+
   render() {
     return (
-      <View>
+      <View
+        style={ this.style }
+      >
         <Pano source={asset('stars.jpg')} />
-        <Theme
-          asset={ asset('theme.mp3') }
-        />
-        <Logo zPosition={ this.state.z }/>
+        <View
+          style={ this.style }
+        >
+          <Player isPlaying={ this.state.isPlaying }>
+            <Theme
+              status={ this.state.status }
+            />
+            <Logo zPosition={ this.state.z } />
+          </Player>
+          <Restart onClick={ this.restart } />
+          <Stop onClick={ this.stop }/>
+        </View>
       </View>
     );
   }
 };
 
-const Theme = ({ soundAsset, status }) => (
-  <Sound
-    source={ asset('theme.mp3') }
-  />
+const Player = ({ isPlaying, children }) => {
+  const toReturn = (
+    isPlaying
+      ? <View>
+          { children }
+        </View>
+      : <View />
+  );
+
+  return toReturn
+};
+
+const Theme = ({ status }) => {
+  return status === 'stop' ? null :
+    <Sound
+      source={ asset('theme.mp3') }
+      volume={ 10 }
+    />
+};
+
+const buttonStyle = StyleSheet.create({
+  VrButton: {
+    // width: 1,
+    transform: [{translate: [-4, 2, -3]}]
+  },
+  Text: {
+    fontSize: 0.2
+  }
+});
+
+const Restart = ({ onClick }) => (
+  <VrButton
+    style={ buttonStyle.VrButton }
+    onClick={ onClick }
+  >
+    <Text style={ buttonStyle.Text }>
+      Restart
+    </Text>
+  </VrButton>
 );
 
-const Logo = ({ zPosition }) => (
+const Stop = ({ onClick }) => (
+  <VrButton
+    style={{ transform: [{translate: [-4, 0, -3]}] }}
+    onClick={ onClick }
+  >
+    <Text style={ buttonStyle.Text }>
+      Stop
+    </Text>
+  </VrButton>
+);
+
+class Logo extends React.Component {
+  // constructor(props) {
+  //   super(props);
+  //
+  //   this.state = {
+  //     fadeAnim: new Animated.Value(0),
+  //   }
+  // }
+  //
+  // componentDidMount() {
+  //   Animated.timing(
+  //     this.state.fadeAnim,
+  //     { toValue: 1 },
+  //   ).start();
+  // }
+
+  render() {
+    return <LogoImage zPosition={ this.props.zPosition } />
+  }
+};
+
+const LogoImage = ({ zPosition }) => (
   <Image
     style={{
       width: 1,
@@ -55,7 +162,7 @@ const Logo = ({ zPosition }) => (
     }}
     source={asset('logo.png')}
   />
-);
+)
 
 const CenteredText = ({ children }) => (
   <Text
