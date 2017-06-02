@@ -9,7 +9,7 @@ function init(bundle, parent, options) {
   const vr = new VRInstance(bundle, 'star_wars_intro_vr', parent, {
     // Add custom options here
     ...options,
-    enableHotReload: true
+    // enableHotReload: true
   });
   vr.render = function() {
     // Any custom behavior you want to perform on each frame goes here

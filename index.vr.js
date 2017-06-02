@@ -12,26 +12,54 @@ import {
   Animated,
 } from 'react-vr';
 
-const ROLL_PLOT = 9000;
+const START = 30000;
+const ROLL_PLOT = START + 9000;
 
 export default class star_wars_intro_vr extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
+      shouldStart: false,
+    };
+
+    setInterval(() => this.setState({
+      shouldStart: true,
+    }), START)
+
+  }
+
+  render() {
+    return(
+      <View>
+        <Pano source={asset('stars.jpg')} />
+        { this.state.shouldStart
+          ? <App />
+          : null
+        }
+      </View>
+    )
+  }
+};
+
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
       logoZ: 0,
       status: 'play',
       isPlaying: true,
-      crawlerY: -0.1,
-      crawlerZ: -1.9,
+      crawlerY: -0.5,
+      crawlerZ: -1,
     };
 
     this.crawlerStart = {
-      y: 0,
-      z: -2,
+      y: -0.4,
+      z: -1,
     };
 
     this.animateLogo();
-    this.animateCrawler();
+    setInterval(() => this.animateCrawler(), ROLL_PLOT);
 
     this.restart = this.restart.bind(this);
     this.stop = this.stop.bind(this);
@@ -48,8 +76,8 @@ export default class star_wars_intro_vr extends React.Component {
   animateCrawler() {
     setInterval(() => {
       this.setState((prevState) => ({
-        crawlerY: prevState.crawlerY + 0.001,
-        crawlerZ: prevState.crawlerZ - 0.001,
+        crawlerY: prevState.crawlerY + 0.007,
+        crawlerZ: prevState.crawlerZ - 0.007,
       }))
     }, 1);
   }
@@ -77,25 +105,24 @@ export default class star_wars_intro_vr extends React.Component {
   render() {
     return (
       <View>
-        <Pano source={asset('stars.jpg')} />
-          <Player isPlaying={ this.state.isPlaying }>
-            <Theme status={ this.state.status } />
-            <Logo zPosition={ this.state.logoZ } />
-            <Crawler yPosition={ this.state.crawlerY } zPosition={ this.state.crawlerZ }/>
-          </Player>
-          <Restart onClick={ this.restart } />
-          <Stop onClick={ this.stop }/>
+        <Player isPlaying={ this.state.isPlaying }>
+          <Theme status={ this.state.status } />
+          <Logo zPosition={ this.state.logoZ } />
+          <Crawler yPosition={ this.state.crawlerY } zPosition={ this.state.crawlerZ }/>
+        </Player>
+        <Restart onClick={ this.restart } />
+        <Stop onClick={ this.stop }/>
       </View>
     );
   }
-};
+}
 
 const Crawler = ({ position, yPosition, zPosition }) => (
   <View style={{
     transform: [
-      { translate: [-4.8, yPosition, zPosition ]},
+      { translate: [-7, yPosition, zPosition ]},
       { rotateX: -50 },
-      { rotateY: -0.8 },
+      { rotateY: 0 },
       { rotateZ: -0.5 }
       ],
   }}>
@@ -112,8 +139,7 @@ const CenteredText = ({ children }) => (
     style={{
       textAlign: 'center',
       color: '#ff6',
-      fontFamily: '"Times New Roman", Georgia, Serif;',
-      fontWeight: 'bold',
+      // fontWeight: 'bold',
       fontSize: 1,
     }}
   >
@@ -223,17 +249,16 @@ const introText = [
   'Rebel spaceships, striking',
   'from a hidden base, have',
   'won their first victory',
-  'against the evil Galactic',
-  'Empire.',
-  '',
+  'against the evil Galactic Empire.',
+  '-',
   'During the battle, rebel',
   'spies managed to steal',
   'secret plans to the Empire\'s',
   'ultimate weapon, the',
   'DEATH STAR, an armored',
   'space station with enough',
-  'power to destroy an entire',
-  'planet.',
+  'power to destroy an entire planet.',
+  '-',
   'Pursued by the Empire\'s',
   'sinister agents, Princess',
   'Leia races home aboard her',
@@ -242,5 +267,7 @@ const introText = [
   'her people and restore',
   'freedom to the galaxy....'
 ];
+
+
 
 AppRegistry.registerComponent('star_wars_intro_vr', () => star_wars_intro_vr);
