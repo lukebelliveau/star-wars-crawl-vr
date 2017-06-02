@@ -12,6 +12,8 @@ import {
   Animated,
 } from 'react-vr';
 
+const ROLL_PLOT = 9000;
+
 export default class star_wars_intro_vr extends React.Component {
   constructor() {
     super();
@@ -37,7 +39,8 @@ export default class star_wars_intro_vr extends React.Component {
 
   restart() {
     this.setState({
-      status: 'stop'
+      status: 'stop',
+      isPlaying: true,
     });
 
     setTimeout(() => {
@@ -130,14 +133,21 @@ const Stop = ({ onClick }) => (
 );
 
 class Logo extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //
-  //   this.state = {
-  //     fadeAnim: new Animated.Value(0),
-  //   }
-  // }
-  //
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      fadeAnim: new Animated.Value(1),
+    };
+
+    setInterval(() => {
+      Animated.timing(
+        this.state.fadeAnim,
+        { toValue: 0 },
+      ).start();
+    }, ROLL_PLOT)
+  }
+
   // componentDidMount() {
   //   Animated.timing(
   //     this.state.fadeAnim,
@@ -146,7 +156,13 @@ class Logo extends React.Component {
   // }
 
   render() {
-    return <LogoImage zPosition={ this.props.zPosition } />
+    return(
+      <Animated.View
+        style={{opacity: this.state.fadeAnim}}
+      >
+        <LogoImage zPosition={ this.props.zPosition } />
+      </Animated.View>
+    )
   }
 };
 
